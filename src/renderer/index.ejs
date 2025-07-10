@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif']
+            }
+          }
+        }
+      };
+    </script>
+
+    <!-- Font Awesome -->
+    <script>window.FontAwesomeConfig = { autoReplaceSvg: 'nest'};</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <!-- Google Fonts - Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;500;600;700;800;900&display=swap">
+
+    <style>
+      ::-webkit-scrollbar { display: none;}
+      body { font-family: 'Inter', sans-serif; }
+      .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+      .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+      .custom-scrollbar::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 3px; }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+
+      .highlighted-section {
+        outline: 2px solid #3F20FB;
+        background-color: rgba(63, 32, 251, 0.1);
+      }
+
+      .edit-button {
+        position: absolute;
+        z-index: 1000;
+      }
+
+      ::-webkit-scrollbar {
+        display: none;
+      }
+
+      html, body {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50">
+    <div id="root"></div>
+  </body>
+</html>

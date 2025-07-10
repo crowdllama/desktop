@@ -1,0 +1,86 @@
+/* Global styles */
+::-webkit-scrollbar {
+  display: none;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Highlighted section styles */
+.highlighted-section {
+  outline: 2px solid #3F20FB;
+  background-color: rgba(63, 32, 251, 0.1);
+}
+
+.edit-button {
+  position: absolute;
+  z-index: 1000;
+}
+
+/* App container */
+#app {
+  height: 900px;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ensure the app takes full height */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  background-color: #f9fafb;
+}
+
+/* Custom color classes for share compute page */
+.text-primary {
+  color: #007BFF;
+}
+
+.text-secondary {
+  color: #343A40;
+}
+
+.text-accent {
+  color: #28A745;
+}
+
+.bg-primary {
+  background-color: #007BFF;
+}
+
+.bg-accent {
+  background-color: #28A745;
+}
+
+.bg-light-gray {
+  background-color: #F0F0F0;
+}
+
+.focus\:ring-primary:focus {
+  --tw-ring-color: #007BFF;
+}
