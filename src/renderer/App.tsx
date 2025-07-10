@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
+import { MemoryRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import BaseLayout from './components/Layout/BaseLayout';
 import ChatView from './components/Chat/ChatView';
 import WelcomePage from './components/Welcome/WelcomePage';
@@ -67,14 +67,16 @@ function ChatPage() {
 }
 
 function WelcomePageWrapper() {
-  const { navigateTo } = useAppContext();
+  const navigate = useNavigate();
 
   const handleShareCompute = () => {
-    navigateTo('share-compute');
+    console.log('Navigating to share-compute');
+    navigate('/share-compute');
   };
 
   const handleUseNetwork = () => {
-    navigateTo('chat');
+    console.log('Navigating to chat');
+    navigate('/chat');
   };
 
   return (
@@ -94,16 +96,16 @@ function WelcomePageWrapper() {
 }
 
 function ShareComputePageWrapper() {
-  const { navigateTo } = useAppContext();
+  const navigate = useNavigate();
 
   const handleStartSharing = () => {
-    // Navigate to chat page after starting to share
-    navigateTo('chat');
+    console.log('Starting to share, navigating to chat');
+    navigate('/chat');
   };
 
   const handleCancel = () => {
-    // Navigate to chat page when canceling
-    navigateTo('chat');
+    console.log('Canceling, navigating to chat');
+    navigate('/chat');
   };
 
   return (
@@ -126,24 +128,21 @@ function ShareComputePageWrapper() {
 }
 
 function AppContent() {
-  // currentRoute is used for future routing logic
-  const { currentRoute } = useAppContext();
-
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<WelcomePageWrapper />} />
-        <Route path="/chat" element={<ChatPage />} />
-        <Route path="/share-compute" element={<ShareComputePageWrapper />} />
-      </Routes>
-    </Router>
+    <Routes>
+      <Route path="/" element={<WelcomePageWrapper />} />
+      <Route path="/chat" element={<ChatPage />} />
+      <Route path="/share-compute" element={<ShareComputePageWrapper />} />
+    </Routes>
   );
 }
 
 export default function App() {
   return (
     <AppProvider>
-      <AppContent />
+      <Router>
+        <AppContent />
+      </Router>
     </AppProvider>
   );
 }
