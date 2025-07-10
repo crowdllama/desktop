@@ -27,9 +27,9 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({
   };
 
   return (
-    <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6 custom-scrollbar">
+    <div className="h-full overflow-y-auto px-6 py-6 space-y-6 custom-scrollbar">
       {showWelcome && (
-        <div className="flex flex-col items-center justify-center h-full space-y-8 text-center">
+        <div className="flex flex-col items-center justify-center min-h-full space-y-8 text-center">
           <div className="w-20 h-20 bg-gradient-to-br from-gray-900 to-gray-700 rounded-3xl flex items-center justify-center shadow-lg">
             <i className="fa-solid fa-brain text-white text-3xl"></i>
           </div>

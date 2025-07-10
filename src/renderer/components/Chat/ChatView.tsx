@@ -34,17 +34,21 @@ const ChatView: React.FC<ChatViewProps> = ({
   };
 
   return (
-    <>
-      <ChatHistory
-        messages={messages}
-        showWelcome={showWelcome}
-        onSuggestionClick={handleSuggestionClick}
-      />
-      <PromptInput
-        onSendMessage={handleSendMessage}
-        disabled={disabled}
-      />
-    </>
+    <div className="flex flex-col h-full">
+      <div className="flex-1 min-h-0">
+        <ChatHistory
+          messages={messages}
+          showWelcome={showWelcome}
+          onSuggestionClick={handleSuggestionClick}
+        />
+      </div>
+      <div className="flex-shrink-0">
+        <PromptInput
+          onSendMessage={handleSendMessage}
+          disabled={disabled}
+        />
+      </div>
+    </div>
   );
 };
 
