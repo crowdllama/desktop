@@ -11,3 +11,9 @@ window.electron?.ipcRenderer.once('ipc-example', (arg) => {
   console.log(arg);
 });
 window.electron?.ipcRenderer.sendMessage('ipc-example', ['ping']);
+
+// Test backend IPC
+window.electron?.backend.getBackendStatus().then((status) => {
+  console.log('Backend status:', status);
+  return status;
+});

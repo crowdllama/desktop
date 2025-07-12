@@ -2,7 +2,12 @@
 /* eslint no-unused-vars: off */
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 
-export type Channels = 'ipc-example';
+export type Channels =
+  | 'ipc-example'
+  | 'start-backend'
+  | 'stop-backend'
+  | 'get-backend-status'
+  | 'ping-backend';
 
 const electronHandler = {
   ipcRenderer: {
@@ -20,6 +25,20 @@ const electronHandler = {
     },
     once(channel: Channels, func: (...args: unknown[]) => void) {
       ipcRenderer.once(channel, (_event, ...args) => func(...args));
+    },
+  },
+  backend: {
+    async startBackend() {
+      return ipcRenderer.invoke('start-backend');
+    },
+    async stopBackend() {
+      return ipcRenderer.invoke('stop-backend');
+    },
+    async getBackendStatus() {
+      return ipcRenderer.invoke('get-backend-status');
+    },
+    async pingBackend() {
+      return ipcRenderer.invoke('ping-backend');
     },
   },
 };

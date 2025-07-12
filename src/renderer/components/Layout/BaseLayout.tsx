@@ -1,6 +1,7 @@
 import React, { ReactNode } from 'react';
 import Header from './Header';
 import NetworkStatusBar from './NetworkStatusBar';
+import BackendStatus from '../BackendStatus';
 
 interface BaseLayoutProps {
   children: ReactNode;
@@ -42,6 +43,9 @@ const BaseLayout: React.FC<BaseLayoutProps> = ({
         peerCount={peerCount}
         statusText={networkStatusText}
       />
+      <div className="px-4 py-2 bg-gray-50 border-b">
+        <BackendStatus />
+      </div>
       <main className="flex-1 flex flex-col overflow-hidden">
         {children}
       </main>
