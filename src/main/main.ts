@@ -48,35 +48,81 @@ const connectIPC = () => {
   ipcClient.setEncoding('utf8');
 
   ipcClient.connect(CROWDLLAMA_SOCKET_PATH, () => {
-    console.log('Connected to Go backend socket (persistent)');
+    console.log('🟢 [MAIN] Connected to Go backend socket (persistent)');
   });
 
-  ipcClient.on('data', (data: string) => {
+    ipcClient.on('data', (data: string) => {
+    console.log('🔵 [MAIN] Raw data received from backend:', data);
+    console.log('🔵 [MAIN] Data length:', data.length);
+    console.log('🔵 [MAIN] Data type:', typeof data);
+    console.log('🔵 [MAIN] Buffer before adding:', ipcClientBuffer);
     ipcClientBuffer += data;
+    console.log('🔵 [MAIN] Buffer after adding:', ipcClientBuffer);
+    console.log('🔵 [MAIN] Buffer length:', ipcClientBuffer.length);
+
+    // Try to parse the entire buffer as a single JSON message first
+    if (ipcClientBuffer.trim()) {
+      try {
+        const parsed = JSON.parse(ipcClientBuffer.trim());
+        console.log('🔵 [MAIN] Parsed single JSON message from backend:', parsed);
+
+        // Route incoming messages to renderer process
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          console.log('🔵 [MAIN] Forwarding to renderer:', parsed);
+          mainWindow.webContents.send('backend-message', parsed);
+        } else {
+          console.log('🔴 [MAIN] Main window not available for forwarding');
+        }
+
+        // Clear the buffer after successful parsing
+        ipcClientBuffer = '';
+        console.log('🔵 [MAIN] Cleared buffer after parsing');
+        return;
+      } catch (err) {
+        console.log('🔵 [MAIN] Not a single JSON message, trying newline-delimited parsing');
+      }
+    }
+
+    // Fallback to newline-delimited parsing
     let index;
     while ((index = ipcClientBuffer.indexOf('\n')) !== -1) {
+      console.log('🔵 [MAIN] Found newline at index:', index);
       const message = ipcClientBuffer.slice(0, index);
       ipcClientBuffer = ipcClientBuffer.slice(index + 1);
+      console.log('🔵 [MAIN] Processing message chunk:', message);
+      console.log('🔵 [MAIN] Message chunk length:', message.length);
+      console.log('🔵 [MAIN] Message chunk trimmed:', message.trim());
+      console.log('🔵 [MAIN] Remaining buffer:', ipcClientBuffer);
+
       if (message.trim()) {
         try {
           const parsed = JSON.parse(message);
-          console.log('Received from backend:', parsed);
-          // TODO: handle parsed message (route to renderer, etc)
+          console.log('🔵 [MAIN] Parsed message from backend:', parsed);
+
+          // Route incoming messages to renderer process
+          if (mainWindow && !mainWindow.isDestroyed()) {
+            console.log('🔵 [MAIN] Forwarding to renderer:', parsed);
+            mainWindow.webContents.send('backend-message', parsed);
+          } else {
+            console.log('🔴 [MAIN] Main window not available for forwarding');
+          }
         } catch (err) {
-          console.log('Failed to parse backend message:', message);
+          console.log('🔴 [MAIN] Failed to parse backend message:', message, err);
         }
+      } else {
+        console.log('🔵 [MAIN] Empty message chunk, skipping');
       }
     }
   });
 
   ipcClient.on('error', (err: any) => {
-    console.log('IPC socket error:', err.message);
+    console.log('🔴 [MAIN] IPC socket error:', err.message);
     // Optionally, try to reconnect or clean up
     ipcClient = null;
   });
 
   ipcClient.on('close', () => {
-    console.log('IPC socket closed');
+    console.log('🔴 [MAIN] IPC socket closed');
     ipcClient = null;
   });
 };
@@ -84,9 +130,10 @@ const connectIPC = () => {
 // Send a message over the persistent IPC connection
 const sendIPCMessage = (msg: object) => {
   if (ipcClient && !ipcClient.destroyed) {
+    console.log('🟡 [MAIN] Sending to backend:', msg);
     ipcClient.write(JSON.stringify(msg) + '\n');
   } else {
-    console.log('IPC client not connected, cannot send message');
+    console.log('🔴 [MAIN] IPC client not connected, cannot send message');
   }
 };
 
@@ -251,6 +298,37 @@ ipcMain.handle('ping-backend', async () => {
     return { success: true, message: 'Ping sent successfully' };
   } catch (error) {
     console.error('Error pinging backend:', error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+});
+
+// New IPC handlers for initialize and prompt messages
+ipcMain.handle('initialize-backend', async (event, mode: 'worker' | 'consumer') => {
+  console.log('🟡 [MAIN] Received initialize-backend request:', { mode });
+  try {
+    sendIPCMessage({ type: 'initialize', mode });
+    console.log('🟡 [MAIN] Initialize message sent successfully');
+    return { success: true, message: 'Initialize message sent successfully' };
+  } catch (error) {
+    console.error('🔴 [MAIN] Error sending initialize message:', error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+});
+
+ipcMain.handle('send-prompt', async (event, prompt: string, model: string) => {
+  console.log('🟡 [MAIN] Received send-prompt request:', { prompt, model });
+  try {
+    sendIPCMessage({ type: 'prompt', prompt, model });
+    console.log('🟡 [MAIN] Prompt message sent successfully');
+    return { success: true, message: 'Prompt sent successfully' };
+  } catch (error) {
+    console.error('🔴 [MAIN] Error sending prompt:', error);
     return {
       success: false,
       message: error instanceof Error ? error.message : 'Unknown error',

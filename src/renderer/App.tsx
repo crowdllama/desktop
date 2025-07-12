@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { MemoryRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import BaseLayout from './components/Layout/BaseLayout';
 import ChatView from './components/Chat/ChatView';
@@ -16,10 +15,9 @@ interface Message {
 }
 
 function ChatPage() {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const { isConnected, peerCount } = useAppContext();
+  const { isConnected, peerCount, sendPrompt, networkStatusText, messages, addMessage } = useAppContext();
 
-  const handleSendMessage = (message: string) => {
+  const handleSendMessage = async (message: string) => {
     const userMessage: Message = {
       id: Date.now().toString(),
       type: 'user',
@@ -27,18 +25,23 @@ function ChatPage() {
       timestamp: new Date().toISOString(),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    addMessage(userMessage);
 
-    // Simulate AI response (in real app, this would come from backend)
-    setTimeout(() => {
-      const aiMessage: Message = {
+    // Send prompt to backend
+    try {
+      await sendPrompt(message, 'tinyllama'); // Default model
+      // The response will be handled by the backend message listener in AppContext
+    } catch (error) {
+      console.error('Failed to send prompt:', error);
+      // Show error message
+      const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'ai',
-        content: `I received your message: "${message}". This is a simulated response. In the real application, this would come from your AI backend.`,
+        content: 'Sorry, there was an error sending your message. Please try again.',
         timestamp: new Date().toISOString(),
       };
-      setMessages((prev) => [...prev, aiMessage]);
-    }, 1000);
+      addMessage(errorMessage);
+    }
   };
 
   const handleHistoryClick = () => {
@@ -57,6 +60,7 @@ function ChatPage() {
     <BaseLayout
       isConnected={isConnected}
       peerCount={peerCount}
+      networkStatusText={networkStatusText}
       onHistoryClick={handleHistoryClick}
       onSettingsClick={handleSettingsClick}
       onUserClick={handleUserClick}
@@ -68,21 +72,35 @@ function ChatPage() {
 
 function WelcomePageWrapper() {
   const navigate = useNavigate();
+  const { initializeBackend, networkStatusText } = useAppContext();
 
-  const handleShareCompute = () => {
-    console.log('Navigating to share-compute');
-    navigate('/share-compute');
+  const handleShareCompute = async () => {
+    console.log('Initializing as worker');
+    try {
+      await initializeBackend('worker');
+      console.log('Navigating to share-compute');
+      navigate('/share-compute');
+    } catch (error) {
+      console.error('Failed to initialize as worker:', error);
+    }
   };
 
-  const handleUseNetwork = () => {
-    console.log('Navigating to chat');
-    navigate('/chat');
+  const handleUseNetwork = async () => {
+    console.log('Initializing as consumer');
+    try {
+      await initializeBackend('consumer');
+      console.log('Navigating to chat');
+      navigate('/chat');
+    } catch (error) {
+      console.error('Failed to initialize as consumer:', error);
+    }
   };
 
   return (
     <BaseLayout
       isConnected
       peerCount={100}
+      networkStatusText={networkStatusText}
       onHistoryClick={() => console.log('History clicked')}
       onSettingsClick={() => console.log('Settings clicked')}
       onUserClick={() => console.log('User clicked')}
@@ -97,6 +115,7 @@ function WelcomePageWrapper() {
 
 function ShareComputePageWrapper() {
   const navigate = useNavigate();
+  const { networkStatusText } = useAppContext();
 
   const handleStartSharing = () => {
     console.log('Starting to share, navigating to chat');
@@ -112,6 +131,7 @@ function ShareComputePageWrapper() {
     <BaseLayout
       isConnected
       peerCount={100}
+      networkStatusText={networkStatusText}
       onHistoryClick={() => console.log('History clicked')}
       onSettingsClick={() => console.log('Settings clicked')}
       onUserClick={() => console.log('User clicked')}

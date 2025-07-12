@@ -7,7 +7,10 @@ export type Channels =
   | 'start-backend'
   | 'stop-backend'
   | 'get-backend-status'
-  | 'ping-backend';
+  | 'ping-backend'
+  | 'initialize-backend'
+  | 'send-prompt'
+  | 'backend-message';
 
 const electronHandler = {
   ipcRenderer: {
@@ -39,6 +42,20 @@ const electronHandler = {
     },
     async pingBackend() {
       return ipcRenderer.invoke('ping-backend');
+    },
+    async initializeBackend(mode: 'worker' | 'consumer') {
+      return ipcRenderer.invoke('initialize-backend', mode);
+    },
+    async sendPrompt(prompt: string, model: string) {
+      return ipcRenderer.invoke('send-prompt', prompt, model);
+    },
+    onBackendMessage(callback: (message: any) => void) {
+      const subscription = (_event: IpcRendererEvent, message: any) => callback(message);
+      ipcRenderer.on('backend-message', subscription);
+
+      return () => {
+        ipcRenderer.removeListener('backend-message', subscription);
+      };
     },
   },
 };
