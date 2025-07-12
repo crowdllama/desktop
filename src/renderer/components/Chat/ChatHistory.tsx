@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 interface Message {
   id: string;
@@ -19,15 +19,24 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({
   showWelcome = false,
   onSuggestionClick,
 }) => {
-    const formatTime = (timestamp: string) => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const formatTime = (timestamp: string) => {
     return new Date(timestamp).toLocaleTimeString([], {
       hour: '2-digit',
       minute: '2-digit',
     });
   };
 
+  // Auto-scroll to bottom when new messages are added
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
   return (
-    <div className="h-full overflow-y-auto px-6 py-6 space-y-6 custom-scrollbar">
+    <div ref={scrollRef} className="h-full overflow-y-auto px-6 py-6 space-y-6 custom-scrollbar">
       {showWelcome && (
         <div className="flex flex-col items-center justify-center min-h-full space-y-8 text-center">
           <div className="w-20 h-20 bg-gradient-to-br from-gray-900 to-gray-700 rounded-3xl flex items-center justify-center shadow-lg">
